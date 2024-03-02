@@ -1,15 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
-import certReducer from './reducers/requestSlice';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import rootReducer from './reducers';
 
-
-export const store = configureStore({
-  reducer: {
-    certs: certReducer
-  },
+const store = configureStore({
+  reducer: rootReducer
 });
 
-setupListeners(store.dispatch);
-
+export const { dispatch } = store;
+setupListeners(dispatch);
 export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type AppDispatch = typeof dispatch;
+export default store;

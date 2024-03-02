@@ -1,4 +1,4 @@
-import { ID, IssueDate, Reference, Status } from '../utils/types';
+import { ID, IssueDate, Status } from '../utils/types';
 import { User } from './users';
 
 export type Request = {
@@ -6,12 +6,12 @@ export type Request = {
   address_to: string,
   purpose: string,
   issued_on: IssueDate,
-  reference_no: Reference,
+  reference_no: number,
   status: Status,
   employee_id: User['id']
 };
 
-export type NewRequest = Omit<Request, 'id' | 'status'>;
+export type RawRequest = Omit<Request, 'id' | 'employee_id'>;
 
 
 const ID_COUNTER_STORAGE_NAME = 'request_id';
@@ -24,18 +24,22 @@ const setRequestIdCount = (id: ID) => localStorage.setItem(ID_COUNTER_STORAGE_NA
 const REQUESTS_STORAGE_NAME = 'requests';
 
 export const getRequests = (): Request[] => JSON.parse(localStorage.getItem(REQUESTS_STORAGE_NAME) || '[]');
-const setRequests = (requests: Request[]) => localStorage.setItem(REQUESTS_STORAGE_NAME, JSON.stringify(requests));
+export const setRequests = (requests: Request[]) => localStorage.setItem(REQUESTS_STORAGE_NAME, JSON.stringify(requests));
 
-export const addUser = (request: NewRequest) => {
-  const users = getRequests();
-  const id = getRequestIdCount();
-  users.push({ ...request, id, status: 'New' });
-  setRequests(users);
-  setRequestIdCount(`${+id + 1}`);
-  return request;
+export const addRequest = (request: Request) => {
+  const requests = getRequests();
+  requests.push(request);
+  setRequests(requests);
+  setRequestIdCount(`${+request.id + 1}`);
+};
+export const putRequest = (request: Request) => {
+  const requests = getRequests();
+  const index = requests.findIndex(r => r.id === request.id);
+  requests[index] = request;
+  setRequests(requests);
 };
 
-export const getRequestById = (id: ID) => getRequests().find(r => r.id === id);
+export const getRequestById = (id: Request['id']) => getRequests().find(r => r.id === id);
 export const getRequestsByUserId = (id: User['id']) => getRequests().filter(r => r.employee_id === id);
 
 export const clearRequests = () => {

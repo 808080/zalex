@@ -1,18 +1,26 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Request } from '../../mockDB/requests';
+import { Request, addRequest, putRequest } from '../../mockDB/requests';
 
-const initialState: Request[] = [];
+const initialState: {
+  requests: Request[]
+} = { requests: [] };
 
 export const requestSlice = createSlice({
   name: 'requests',
   initialState,
   reducers: {
-    addRequest(state, action: PayloadAction<Request>) {
-      state.push(action.payload);
+    createRequest(state, action: PayloadAction<Request>) {
+      state.requests.push(action.payload);
+      addRequest(action.payload);
     },
-    updateRequest(state, action: PayloadAction<any>) {
-
+    updateRequest(state, action: PayloadAction<Request>) {
+      const index = state.requests.findIndex(r => r.id === action.payload.id);
+      state.requests[index] = action.payload;
+      putRequest(action.payload);
     },
+    cahceRequests(state, action: PayloadAction<Request[]>) {
+      state.requests = action.payload;
+    }
   },
 });
 

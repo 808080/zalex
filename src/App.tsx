@@ -1,13 +1,18 @@
-import { useState } from 'react'
+import { Route, Routes } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Requests from './pages/Requests';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
 
-  return (
-    <div>
-      <button onClick={() => setCount((c) => c + 1)}>{count}</button>
-    </div>
-  )
-}
+  return <main>
+    <Routes>
+      <Route path="/" element={<Requests />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="*" element={<Requests />} />
+    </Routes>
+  </main>;
+};
 
-export default App
+export default App;

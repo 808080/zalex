@@ -1,8 +1,8 @@
-import { ID, Email } from '../utils/types';
+import { ID } from '../utils/types';
 
 export type User = {
   id: ID,
-  email: Email,
+  email: string,
   password: string
 };
 
@@ -31,20 +31,21 @@ export const addUser = (user: NewUser) => {
 };
 
 export const getUserById = (id: ID) => getUsers().find((u) => u.id === id);
-export const getUserByEmail = (email: Email) => getUsers().find((u) => u.email === email);
+export const getUserByEmail = (email: string) => getUsers().find((u) => u.email === email);
 
-export const checkUser = (u1: User) => getUsers().find((u2) => (u1.email === u2.email && u1.password === u2.password));
+export const checkUser = (u1: NewUser) => getUsers().find((u2) => (u1.email === u2.email && u1.password === u2.password));
 
 
 
 const CURRENT_USER_STORAGE_NAME = 'current-user';
 
 export const setCurrentUser = (user: User) => localStorage.setItem(CURRENT_USER_STORAGE_NAME, JSON.stringify(user));
-export const getCurrentUser = () => JSON.parse(localStorage.getItem(CURRENT_USER_STORAGE_NAME) || 'null');
+export const getCurrentUser = (): User | null => JSON.parse(localStorage.getItem(CURRENT_USER_STORAGE_NAME) || 'null');
+export const clearCurrentUser = () => localStorage.removeItem(CURRENT_USER_STORAGE_NAME);
 
 
 export const clearUsers = () => {
-  localStorage.removeItem(CURRENT_USER_STORAGE_NAME);
+  clearCurrentUser();
   setUsers([]);
   setUserIdCount('1');
 };
