@@ -11,6 +11,7 @@ import TextArea from '../TextArea';
 import { getCurrentUser } from '../../mockDB/users';
 import Input from '../Input';
 import DatePicker from '../DatePicker';
+import httpRequest, { HTTPmethods } from '../../utils/http';
 
 const CloseModal = ({ text = 'Close' }: { text?: string }) => {
   const handleClick = () => { setModalContent({ contentType: null, data: undefined }) };
@@ -85,22 +86,31 @@ const Content = {
       }
     });
 
-    const handleSave = (fields: CertSchema) => {
+    const handleSave = async (fields: CertSchema) => {
       const dateFormatted = new Intl.DateTimeFormat("en-US", {
         year: "numeric",
         month: "numeric",
         day: "numeric"
       }).format(new Date(fields.issued_on));
 
-      createRequest({
-        ...fields,
-        employee_id: `${+fields.employee_id}`,
+      const res = await httpRequest<{ responce: string }>(HTTPmethods.POST, '/request-certificate', {
+        address_to: fields.address_to,
+        purpose: fields.purpose,
         issued_on: dateFormatted,
-        id: getRequestIdCount(),
-        reference_no: +getRequestIdCount(),
-        status: 'New',
+        employee_id: `${+fields.employee_id}`
       });
-      setModalContent({ contentType: null, data: undefined });
+
+      if (res.responce === 'Ok') {
+        createRequest({
+          ...fields,
+          employee_id: `${+fields.employee_id}`,
+          issued_on: dateFormatted,
+          id: getRequestIdCount(),
+          reference_no: +getRequestIdCount(),
+          status: 'New',
+        });
+        setModalContent({ contentType: 'success', data: undefined });
+      }
     };
 
     return <div>
@@ -120,7 +130,11 @@ const Content = {
         </form>
       </FormProvider>
     </div>;
-  }
+  },
+  success: () => <div style={{ textAlign: 'center' }}>
+    <Title style={{ marginBottom: '40px' }}>Request created successfully</Title>
+    <CloseModal />
+  </div>,
 };
 
 export type ModalContentType = keyof typeof Content;
