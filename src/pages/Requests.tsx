@@ -6,7 +6,7 @@ import useRequests from '../hooks/useRequests';
 import Container from '../components/Container';
 import { useCallback } from 'react';
 import { filterFuncs, sortFuncs } from '../utils/functions';
-import { cahceRequests } from '../store/actionCreators';
+import { cahceRequests, setModalContent } from '../store/actionCreators';
 import { Status } from '../utils/types';
 
 const statuses: { label: Status, value: Status }[] = [
@@ -16,10 +16,13 @@ const statuses: { label: Status, value: Status }[] = [
   { label: 'Done', value: 'Done' },
 ];
 
+const purposeEditCond = (row: Request) => row.status === 'New';
+const onPurposeEdit = (row: Request) => setModalContent({ contentType: 'editPurpose', data: row });
+
 const headers: TableHeader<Request>[] = [
   { label: 'Reference No.', name: 'reference_no', type: 'numeric', hasSort: false, hasFilter: true },
   { label: 'Address to', name: 'address_to', type: 'text', hasSort: false, hasFilter: true },
-  { label: 'Purpose', name: 'purpose', type: 'text', hasSort: false, hasFilter: false },
+  { label: 'Purpose', name: 'purpose', type: 'text', hasSort: false, hasFilter: false, editCondition: purposeEditCond, onEdit: onPurposeEdit, isHTML: true },
   { label: 'Issued on', name: 'issued_on', type: 'date', hasSort: true, hasFilter: false },
   { label: 'Status', name: 'status', type: 'select', options: statuses, hasSort: true, hasFilter: true },
 ];

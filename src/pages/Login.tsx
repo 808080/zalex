@@ -42,7 +42,7 @@ const Login = () => {
       setCurrentUser(user);
       navigate('/');
     } else {
-      setModalContent('wrongCreds');
+      setModalContent({ contentType: 'wrongCreds' });
     }
   };
 

@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { ID, Option } from '../../utils/types';
 import { debounce } from '../../utils/functions';
 import Select from '../Select';
+import sanitizeHtml from 'sanitize-html';
 
 type Row = {
   id: ID,
@@ -18,6 +19,9 @@ export type TableHeader<T extends Row> = {
   label: string;
   hasSort: boolean;
   hasFilter: boolean;
+  editCondition?: (row: T) => boolean;
+  onEdit?: (row: T) => void;
+  isHTML?: boolean;
 } & ({
   type: 'select';
   options: Option[];
@@ -69,7 +73,13 @@ const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>)
       </tr>
     </thead>
     <tbody>
-      {data.map(row => <tr key={row.id}>{headers.map(header => <td key={`${row.id}-${header.name.toString()}`}>{row[header.name]}</td>)}</tr>)}
+      {data.map(row => <tr key={row.id}>
+        {headers.map(header => <td key={`${row.id}-${header.name.toString()}`}>
+          {header.isHTML ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(row[header.name], { allowedAttributes: { '*': ['style', 'class'] } }) }} /> : row[header.name]}
+
+          {header.editCondition?.(row) && <button onClick={() => header.onEdit?.(row)}>Edit</button>}
+        </td>)}
+      </tr>)}
     </tbody>
   </table >;
 };
