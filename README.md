@@ -1,5 +1,8 @@
 # Zalex
 
+### Public url
+https://zalex-delta.vercel.app
+
 ### Run with docker
 
 ```
