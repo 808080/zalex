@@ -1,25 +1,28 @@
 import { Navigate } from 'react-router-dom';
 import { getCurrentUser } from '../mockDB/users';
-import DataTable, { ColType, SortDir, TableHeader } from '../components/DataTable';
+import DataTable, { Filter, SortDir, TableHeader } from '../components/DataTable';
 import { Request } from '../mockDB/requests';
 import useRequests from '../hooks/useRequests';
 import Container from '../components/Container';
 import { useCallback } from 'react';
-import { debounce, sortFuncs } from '../utils/functions';
+import { filterFuncs, sortFuncs } from '../utils/functions';
+import { cahceRequests } from '../store/actionCreators';
+import { Status } from '../utils/types';
+
+const statuses: { label: Status, value: Status }[] = [
+  { label: 'New', value: 'New' },
+  { label: 'Pending', value: 'Pending' },
+  { label: 'Under Review', value: 'Under Review' },
+  { label: 'Done', value: 'Done' },
+];
 
 const headers: TableHeader<Request>[] = [
   { label: 'Reference No.', name: 'reference_no', type: 'numeric', hasSort: false, hasFilter: true },
   { label: 'Address to', name: 'address_to', type: 'text', hasSort: false, hasFilter: true },
   { label: 'Purpose', name: 'purpose', type: 'text', hasSort: false, hasFilter: false },
   { label: 'Issued on', name: 'issued_on', type: 'date', hasSort: true, hasFilter: false },
-  { label: 'Status', name: 'status', type: 'select', hasSort: true, hasFilter: true },
+  { label: 'Status', name: 'status', type: 'select', options: statuses, hasSort: true, hasFilter: true },
 ];
-
-const filterFuncs: { [col in ColType]?: (requests: Request[], val: string) => void } = {
-  numeric: (requests, val) => { },
-  text: (requests, val) => { },
-  select: (requests, val) => { },
-};
 
 
 const Requests = () => {
@@ -39,16 +42,29 @@ const Requests = () => {
   //   console.log(new Date(r.issued_on));
   // });
 
-  const handleSort = useCallback((col: ColType, dir: SortDir) => {
+  const handleSort = useCallback((col: TableHeader<Request>, dir: SortDir) => {
+    const sortFunc = sortFuncs[col.type];
+    if (!sortFunc) return;
     const reqCopy = [...requests];
-    sortFuncs[col]?.(reqCopy, dir);
+    const sorted = sortFunc(reqCopy, dir, col.name);
+    cahceRequests(sorted);
   }, [requests]);
 
-  const handleFilter = useCallback(debounce((col: keyof Request, val: string) => {
-    const reqCopy = [...requests];
-    console.log(col, val);
-    // requestSortFuncs[col]?.(reqCopy, dir);
-  }), [requests]);
+  const handleFilter = useCallback((filter: Filter<Request>) => {
+    let reqCopy = [...requests];
+
+    Object.keys(filter).forEach(key => {
+      const field = key as keyof Request;
+      const col = filter[field];
+      if (!col) return;
+      if (col.val === '' || col.val === undefined) return;
+      const filterFunc = filterFuncs[col.type];
+      if (!filterFunc) return;
+      reqCopy = filterFunc(reqCopy, col.val, field);
+    });
+
+    cahceRequests(reqCopy);
+  }, [requests]);
 
   if (!user) return <Navigate to="/login" replace={true} />;
 
