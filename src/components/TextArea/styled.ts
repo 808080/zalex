@@ -13,7 +13,7 @@ export const TextAreaStyled = styled.div<{ $invalid: boolean }>`
     border-radius: 5px;
     font-size: 14px;
     outline: none;
-    max-widht: 500px;
+    max-width: 500px;
     min-height: 100px;
   }
   .error {

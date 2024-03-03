@@ -1,11 +1,11 @@
-import { ID, IssueDate, Status } from '../utils/types';
+import { ID, Status } from '../utils/types';
 import { User } from './users';
 
 export type Request = {
   id: ID,
   address_to: string,
   purpose: string,
-  issued_on: IssueDate,
+  issued_on: string,
   reference_no: number,
   status: Status,
   employee_id: User['id']

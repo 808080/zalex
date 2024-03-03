@@ -3,6 +3,9 @@ import { ID, Option } from '../../utils/types';
 import { debounce } from '../../utils/functions';
 import Select from '../Select';
 import sanitizeHtml from 'sanitize-html';
+import { TableStyled } from './styled';
+import Button from '../Button';
+import { setModalContent } from '../../store/actionCreators';
 
 type Row = {
   id: ID,
@@ -57,31 +60,42 @@ const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>)
   }, []);
   const filterDebounced = debounce(filter);
 
-  return <table>
-    <thead>
-      <tr>
-        {headers.map(header => <th key={header.name.toString()}>
-          {header.hasFilter && (
-            header.type === 'select' ? <Select name={header.name.toString()} options={header.options} onChange={(val) => filter(header, val)} /> :
-              <div>
-                <input type="text" onInput={(e) => filterDebounced(header, e.currentTarget.value)} />
-              </div>
-          )}
-          {header.label}
-          {header.hasSort && <span onClick={() => onSortClick(header)}>sort</span>}
-        </th>)}
-      </tr>
-    </thead>
-    <tbody>
-      {data.map(row => <tr key={row.id}>
-        {headers.map(header => <td key={`${row.id}-${header.name.toString()}`}>
-          {header.isHTML ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(row[header.name], { allowedAttributes: { '*': ['style', 'class'] } }) }} /> : row[header.name]}
+  const newCert = () => {
+    setModalContent({ contentType: 'newCert' })
+  };
 
-          {header.editCondition?.(row) && <button onClick={() => header.onEdit?.(row)}>Edit</button>}
-        </td>)}
-      </tr>)}
-    </tbody>
-  </table >;
+  return <>
+    <Button text='Request Certificate' type='button' onClick={newCert} />
+
+    <TableStyled>
+      <thead>
+        <tr>
+          {headers.map(header => <th key={header.name.toString()}>
+            {header.hasFilter && (
+              header.type === 'select' ?
+                <div className='filter'>
+                  <Select name={header.name.toString()} options={header.options} onChange={(val) => filter(header, val)} />
+                </div> :
+                <div className='filter'>
+                  <input type="text" placeholder='search' onInput={(e) => filterDebounced(header, e.currentTarget.value)} />
+                </div>
+            )}
+
+            {header.hasSort ? <span className='sort' onClick={() => onSortClick(header)}>{header.label} ▼</span> : header.label}
+          </th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map(row => <tr key={row.id}>
+          {headers.map(header => <td key={`${row.id}-${header.name.toString()}`}>
+            {header.isHTML ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(row[header.name], { allowedAttributes: { '*': ['style', 'class'] } }) }} /> : row[header.name]}
+
+            {header.editCondition?.(row) && <button className='edit-button' onClick={() => header.onEdit?.(row)}>✎</button>}
+          </td>)}
+        </tr>)}
+      </tbody>
+    </TableStyled>
+  </>;
 };
 
 export default DataTable;

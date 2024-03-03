@@ -32,19 +32,6 @@ const Requests = () => {
   const user = getCurrentUser();
   const { isLoading, requests } = useRequests();
 
-  // requests.map(r => {
-  //   // r.issued_on
-
-  //   // const dateFormatted = new Intl.DateTimeFormat("en-US", {
-  //   //   year: "numeric",
-  //   //   month: "numeric",
-  //   //   day: "numeric"
-  //   // }).format(new Date(r.issued_on));
-
-  //   // console.log(dateFormatted);
-  //   console.log(new Date(r.issued_on));
-  // });
-
   const handleSort = useCallback((col: TableHeader<Request>, dir: SortDir) => {
     const sortFunc = sortFuncs[col.type];
     if (!sortFunc) return;

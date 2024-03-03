@@ -11,4 +11,7 @@ export default createGlobalStyle`
     background-color: ${C_BG};
     font-family: sans-serif;
   }
+  button {
+    cursor: pointer;
+  }
 `;
