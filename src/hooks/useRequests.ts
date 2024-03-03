@@ -11,6 +11,8 @@ const useRequests = () => {
   const user = getCurrentUser()!;
 
   useEffect(() => {
+    if (!user) return;
+
     const storageRequests = getRequestsByUserId(user.id);
 
     if (!storageRequests.length) { // set demo data for the current user if there is non
