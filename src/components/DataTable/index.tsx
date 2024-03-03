@@ -7,6 +7,8 @@ import { TableStyled } from './styled';
 import Button from '../Button';
 import { setModalContent } from '../../store/actionCreators';
 import Info from '../../assets/images/info-button.svg';
+import { clearCurrentUser } from '../../mockDB/users';
+import { useNavigate } from 'react-router-dom';
 
 type Row = {
   id: ID,
@@ -43,6 +45,8 @@ type Props<T extends Row> = {
 const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>) => {
   const sortRef = useRef<{ col: keyof T, dir: SortDir }>({ col: '', dir: 'desc' });
   const filterRef = useRef<Filter<T>>({});
+  const navigate = useNavigate();
+
 
   const onSortClick = (col: TableHeader<T>) => {
     if (sortRef.current.col === col.name) {
@@ -69,8 +73,17 @@ const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>)
     setModalContent({ contentType: 'certInfo', data: row });
   };
 
+  const logout = () => {
+    clearCurrentUser();
+    navigate('/login');
+  };
+
   return <>
-    <Button text='Request Certificate' type='button' onClick={newCert} />
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Button text='Request Certificate' type='button' onClick={newCert} />
+      <Button text='Log out' type='button' onClick={logout} />
+    </div>
+
 
     <TableStyled>
       <thead>
