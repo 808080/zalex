@@ -6,6 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 import { TableStyled } from './styled';
 import Button from '../Button';
 import { setModalContent } from '../../store/actionCreators';
+import Info from '../../assets/images/info-button.svg';
 
 type Row = {
   id: ID,
@@ -61,7 +62,11 @@ const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>)
   const filterDebounced = debounce(filter);
 
   const newCert = () => {
-    setModalContent({ contentType: 'newCert' })
+    setModalContent({ contentType: 'newCert' });
+  };
+
+  const infoModal = (row: T) => {
+    setModalContent({ contentType: 'certInfo', data: row });
   };
 
   return <>
@@ -86,12 +91,13 @@ const DataTable = <T extends Row>({ headers, data, onSort, onFilter }: Props<T>)
         </tr>
       </thead>
       <tbody>
-        {data.map(row => <tr key={row.id}>
+        {data.map(row => <tr key={`${row.id}-${row.reference_no}`}>
           {headers.map(header => <td key={`${row.id}-${header.name.toString()}`}>
             {header.isHTML ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(row[header.name], { allowedAttributes: { '*': ['style', 'class'] } }) }} /> : row[header.name]}
 
             {header.editCondition?.(row) && <button className='edit-button' onClick={() => header.onEdit?.(row)}>✎</button>}
           </td>)}
+          <td className='info' onClick={() => infoModal(row)}><img src={Info} alt="info" width={20} height={20} /></td>
         </tr>)}
       </tbody>
     </TableStyled>

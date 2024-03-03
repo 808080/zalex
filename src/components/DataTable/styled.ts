@@ -59,4 +59,8 @@ export const TableStyled = styled.table`
   .filter {
     margin-bottom: 10px;
   }
+
+  .info {
+    cursor: pointer;
+  }
 `;

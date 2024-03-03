@@ -25,7 +25,7 @@ const customStyles = {
     bottom: 'auto',
     right: 'auto',
     transform: 'translate(-50%, -50%)',
-    maxWidth: '500px',
+    maxWidth: '1024px',
     minHeight: '185px',
     padding: '20px 40px',
   } satisfies CSSProperties,

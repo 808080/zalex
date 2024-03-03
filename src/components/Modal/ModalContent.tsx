@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { createRequest, setModalContent, updateRequest } from '../../store/actionCreators';
 import Button from '../Button';
 import Title from '../Title';
@@ -12,6 +12,7 @@ import { getCurrentUser } from '../../mockDB/users';
 import Input from '../Input';
 import DatePicker from '../DatePicker';
 import httpRequest, { HTTPmethods } from '../../utils/http';
+import jsPDF from 'jspdf';
 
 const CloseModal = ({ text = 'Close' }: { text?: string }) => {
   const handleClick = () => { setModalContent({ contentType: null, data: undefined }) };
@@ -135,6 +136,49 @@ const Content = {
     <Title style={{ marginBottom: '40px' }}>Request created successfully</Title>
     <CloseModal />
   </div>,
+  certInfo: () => {
+    const { data } = useTypedSelector(state => state.modal) as { data: Request };
+
+    const infoRef = useRef<HTMLDivElement>(null);
+    const [pdfUrl, setPdfUrl] = useState('');
+
+    useEffect(() => {
+      if (!infoRef.current) return;
+
+      const doc = new jsPDF({
+        format: 'a4',
+        unit: 'px',
+      });
+
+      doc.html(infoRef.current, {
+        callback(doc) {
+          const url = doc.output('dataurlstring');
+          setPdfUrl(url);
+        },
+      });
+    }, []);
+
+
+    return <div>
+      <Title>Certificate info</Title>
+
+      <div style={{ display: 'flex' }}>
+        <div id='info' ref={infoRef}>
+          <div>Reference No. - {data.reference_no}</div>
+          <div>Address to - {data.address_to}</div>
+          <div>Purpose - {data.purpose}</div>
+          {data.status === 'Done' && <div>Issued on - {data.issued_on}</div>}
+          <div>Status - {data.status}</div>
+        </div>
+
+        <div>
+          {pdfUrl && <iframe src={pdfUrl + '#toolbar=1'} width={500} height={400} />}
+        </div>
+      </div>
+
+      <CloseModal />
+    </div>
+  }
 };
 
 export type ModalContentType = keyof typeof Content;
