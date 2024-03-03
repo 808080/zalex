@@ -143,7 +143,7 @@ const Content = {
     const [pdfUrl, setPdfUrl] = useState('');
 
     useEffect(() => {
-      if (!infoRef.current) return;
+      if (!infoRef.current || data.status !== 'Done') return;
 
       const doc = new jsPDF({
         format: 'a4',
@@ -172,7 +172,7 @@ const Content = {
         </div>
 
         <div>
-          {pdfUrl && <iframe src={pdfUrl + '#toolbar=1'} width={500} height={400} />}
+          {pdfUrl ? <iframe src={pdfUrl + '#toolbar=1'} width={500} height={400} /> : 'Certificate is yet to be issued.'}
         </div>
       </div>
 
